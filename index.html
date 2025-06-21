@@ -1,0 +1,1157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IMEX Hub - Procurement Intelligence Platform</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary-color: #1e3a8a;
+            --secondary-color: #3b82f6;
+            --accent-color: #f59e0b;
+            --text-primary: #1f2937;
+            --text-secondary: #6b7280;
+            --bg-primary: #f9fafb;
+            --bg-secondary: #ffffff;
+            --border-color: #e5e7eb;
+            --success-color: #10b981;
+            --error-color: #ef4444;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            line-height: 1.6;
+            color: var(--text-primary);
+            background-color: var(--bg-primary);
+            overflow-x: hidden;
+        }
+
+        /* Header Styles */
+        header {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            padding: 1rem 0;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .header-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 1.8rem;
+            font-weight: bold;
+            letter-spacing: -0.5px;
+        }
+
+        .tagline {
+            font-size: 0.9rem;
+            opacity: 0.9;
+        }
+
+        /* Navigation */
+        nav ul {
+            list-style: none;
+            display: flex;
+            gap: 2rem;
+        }
+
+        nav a {
+            color: white;
+            text-decoration: none;
+            padding: 0.5rem 1rem;
+            border-radius: 0.5rem;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        nav a:hover {
+            background: rgba(255,255,255,0.1);
+            transform: translateY(-2px);
+        }
+
+        nav a.active {
+            background: rgba(255,255,255,0.2);
+        }
+
+        nav a.active::after {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 80%;
+            height: 3px;
+            background: var(--accent-color);
+            border-radius: 3px;
+        }
+
+        /* Main Content */
+        main {
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 0 2rem;
+        }
+
+        .tab-content {
+            display: none;
+            animation: fadeIn 0.5s ease-in-out;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Card Styles */
+        .card {
+            background: var(--bg-secondary);
+            border-radius: 1rem;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            transition: all 0.3s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 15px rgba(0,0,0,0.1);
+        }
+
+        .card h2 {
+            color: var(--primary-color);
+            margin-bottom: 1rem;
+            font-size: 1.8rem;
+        }
+
+        .card h3 {
+            color: var(--secondary-color);
+            margin: 1.5rem 0 1rem;
+            font-size: 1.3rem;
+        }
+
+        /* Stats Grid */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin: 2rem 0;
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, var(--secondary-color), var(--primary-color));
+            color: white;
+            padding: 2rem;
+            border-radius: 1rem;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+            transform: rotate(45deg);
+        }
+
+        .stat-number {
+            font-size: 2.5rem;
+            font-weight: bold;
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-label {
+            font-size: 1rem;
+            opacity: 0.9;
+        }
+
+        /* Forms */
+        .search-section {
+            background: var(--bg-secondary);
+            padding: 2rem;
+            border-radius: 1rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        input[type="text"],
+        input[type="number"],
+        select {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            border: 2px solid var(--border-color);
+            border-radius: 0.5rem;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        input[type="text"]:focus,
+        input[type="number"]:focus,
+        select:focus {
+            outline: none;
+            border-color: var(--secondary-color);
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+
+        .checkbox-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            margin-top: 0.5rem;
+        }
+
+        .checkbox-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        input[type="checkbox"] {
+            width: 1.2rem;
+            height: 1.2rem;
+            cursor: pointer;
+        }
+
+        button {
+            background: linear-gradient(135deg, var(--secondary-color), var(--primary-color));
+            color: white;
+            padding: 0.75rem 2rem;
+            border: none;
+            border-radius: 0.5rem;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(59, 130, 246, 0.3);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        button::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.3);
+            transform: translate(-50%, -50%);
+            transition: width 0.6s, height 0.6s;
+        }
+
+        button:active::after {
+            width: 300px;
+            height: 300px;
+        }
+
+        /* Results Section */
+        .results-container {
+            margin-top: 2rem;
+        }
+
+        .opportunity-card {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 0.75rem;
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .opportunity-card:hover {
+            border-color: var(--secondary-color);
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.1);
+        }
+
+        .opportunity-card.selected {
+            border-color: var(--accent-color);
+            background: #fffbeb;
+        }
+
+        .opportunity-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: var(--primary-color);
+            margin-bottom: 0.5rem;
+        }
+
+        .opportunity-detail {
+            display: flex;
+            gap: 2rem;
+            margin: 0.5rem 0;
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            flex-wrap: wrap;
+        }
+
+        .detail-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .detail-item strong {
+            color: var(--text-primary);
+        }
+
+        .opportunity-checkbox {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-top: 1rem;
+        }
+
+        /* Charts Placeholder */
+        .chart-container {
+            background: var(--bg-secondary);
+            border: 2px dashed var(--border-color);
+            border-radius: 1rem;
+            padding: 3rem;
+            text-align: center;
+            color: var(--text-secondary);
+            margin: 2rem 0;
+            min-height: 400px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+        }
+
+        .chart-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            opacity: 0.5;
+        }
+
+        /* Dashboard Section */
+        .dashboard-nav {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            border-bottom: 2px solid var(--border-color);
+            padding-bottom: 1rem;
+        }
+
+        .dashboard-tab {
+            padding: 0.5rem 1.5rem;
+            background: none;
+            border: none;
+            color: var(--text-secondary);
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .dashboard-tab:hover {
+            color: var(--primary-color);
+        }
+
+        .dashboard-tab.active {
+            color: var(--primary-color);
+        }
+
+        .dashboard-tab.active::after {
+            content: '';
+            position: absolute;
+            bottom: -1.1rem;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: var(--primary-color);
+        }
+
+        /* Loading Spinner */
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 2rem;
+        }
+
+        .spinner {
+            display: inline-block;
+            width: 40px;
+            height: 40px;
+            border: 4px solid var(--border-color);
+            border-top-color: var(--secondary-color);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Selected Opportunities Section */
+        .selected-opportunities {
+            background: #f0f9ff;
+            border: 2px solid #3b82f6;
+            border-radius: 0.75rem;
+            padding: 1.5rem;
+            margin: 2rem 0;
+        }
+
+        .selected-opportunities h4 {
+            color: var(--primary-color);
+            margin-bottom: 1rem;
+        }
+
+        .selected-list {
+            list-style: none;
+            margin-bottom: 1rem;
+        }
+
+        .selected-list li {
+            padding: 0.5rem 0;
+            border-bottom: 1px solid #dbeafe;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .header-content {
+                flex-direction: column;
+                gap: 1rem;
+            }
+
+            nav ul {
+                flex-wrap: wrap;
+                justify-content: center;
+                gap: 1rem;
+            }
+
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .opportunity-detail {
+                flex-direction: column;
+                gap: 0.5rem;
+            }
+        }
+
+        /* Error Message */
+        .error-message {
+            background: #fef2f2;
+            border: 1px solid #fecaca;
+            color: #dc2626;
+            padding: 1rem;
+            border-radius: 0.5rem;
+            margin: 1rem 0;
+        }
+
+        /* Success Message */
+        .success-message {
+            background: #f0fdf4;
+            border: 1px solid #bbf7d0;
+            color: #16a34a;
+            padding: 1rem;
+            border-radius: 0.5rem;
+            margin: 1rem 0;
+        }
+
+        /* API Status Indicator */
+        .api-status {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 1rem;
+            background: #f0fdf4;
+            border-radius: 0.5rem;
+            font-size: 0.875rem;
+            margin-top: 1rem;
+        }
+
+        .api-status-dot {
+            width: 8px;
+            height: 8px;
+            background: var(--success-color);
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.5; }
+            100% { opacity: 1; }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="header-content">
+            <div>
+                <div class="logo">IMEX Hub</div>
+                <div class="tagline">Procurement Intelligence Platform</div>
+            </div>
+            <nav>
+                <ul>
+                    <li><a href="#home" class="nav-link active" onclick="showTab('home')">Home</a></li>
+                    <li><a href="#naics" class="nav-link" onclick="showTab('naics')">NAICS Analytics</a></li>
+                    <li><a href="#grants" class="nav-link" onclick="showTab('grants')">Grants Hub</a></li>
+                    <li><a href="#dashboards" class="nav-link" onclick="showTab('dashboards')">Dashboards</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <main>
+        <!-- Home Tab -->
+        <div id="home" class="tab-content active">
+            <div class="card">
+                <h2>Welcome to IMEX Hub</h2>
+                <p>Your comprehensive solution for procurement opportunity discovery and analysis. IMEX Hub transforms the way you find and analyze government contracts, providing intelligent insights and automated data aggregation.</p>
+                
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-number">177</div>
+                        <div class="stat-label">Contracts Analyzed</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number">$4.46M</div>
+                        <div class="stat-label">Total Contract Value</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number">7</div>
+                        <div class="stat-label">NAICS Codes Tracked</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number">26</div>
+                        <div class="stat-label">Active Contractors</div>
+                    </div>
+                </div>
+
+                <h3>About This Platform</h3>
+                <p>IMEX Hub was developed to address the inefficiencies in manual procurement data gathering. Our platform provides:</p>
+                <ul style="margin-left: 2rem; margin-top: 1rem;">
+                    <li><strong>Automated Data Collection:</strong> Real-time access to grants.gov opportunities</li>
+                    <li><strong>NAICS Code Analysis:</strong> Deep insights into industry classification trends</li>
+                    <li><strong>Interactive Dashboards:</strong> Visual analytics for better decision-making</li>
+                    <li><strong>Smart Filtering:</strong> Find relevant opportunities faster with keyword and code-based search</li>
+                </ul>
+
+                <h3>How It Works</h3>
+                <p style="margin-top: 1rem;">Navigate through our three main sections using the menu above:</p>
+                <ol style="margin-left: 2rem; margin-top: 1rem;">
+                    <li><strong>NAICS Analytics:</strong> Explore historical contract data and industry trends</li>
+                    <li><strong>Grants Hub:</strong> Search and discover new procurement opportunities</li>
+                    <li><strong>Dashboards:</strong> Visualize data through interactive charts and reports</li>
+                </ol>
+
+                <div class="api-status">
+                    <div class="api-status-dot"></div>
+                    <span>Live API Connection Active</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- NAICS Analytics Tab -->
+        <div id="naics" class="tab-content">
+            <div class="card">
+                <h2>NAICS Analytics</h2>
+                <p>North American Industry Classification System (NAICS) codes are the foundation of government procurement classification. Understanding NAICS trends helps identify market opportunities and competitive landscapes.</p>
+
+                <h3>About NAICS Codes</h3>
+                <p>NAICS is the standard used by Federal statistical agencies to classify business establishments. In government contracting, these 6-digit codes determine:</p>
+                <ul style="margin-left: 2rem; margin-top: 1rem;">
+                    <li>Small business size standards</li>
+                    <li>Set-aside eligibility</li>
+                    <li>Industry competition levels</li>
+                    <li>Historical spending patterns</li>
+                </ul>
+
+                <h3>IMEX Contract Analysis</h3>
+                <div class="chart-container">
+                    <div class="chart-icon">📊</div>
+                    <div>NAICS Code Distribution Chart</div>
+                    <small>[Insert: Sorted NAICS Code Distribution visualization showing 481211 dominance]</small>
+                </div>
+
+                <h3>Key Findings</h3>
+                <div class="stats-grid">
+                    <div class="card" style="background: linear-gradient(135deg, #f0f9ff, #e0f2fe);">
+                        <h4 style="color: var(--secondary-color);">Dominant NAICS: 481211</h4>
+                        <p><strong>88%</strong> of contracts</p>
+                        <p>Nonscheduled Chartered Passenger Air Transportation</p>
+                    </div>
+                    <div class="card" style="background: linear-gradient(135deg, #fef3c7, #fde68a);">
+                        <h4 style="color: var(--accent-color);">Average Contract Size</h4>
+                        <p><strong>$25,198</strong></p>
+                        <p>Median: $19,250</p>
+                    </div>
+                    <div class="card" style="background: linear-gradient(135deg, #d1fae5, #a7f3d0);">
+                        <h4 style="color: var(--success-color);">Small Business Opportunities</h4>
+                        <p><strong>85%</strong> under $50K</p>
+                        <p>Prime for set-asides</p>
+                    </div>
+                </div>
+
+                <div class="chart-container">
+                    <div class="chart-icon">📈</div>
+                    <div>Total Obligated Amount Distribution</div>
+                    <small>[Insert: Histogram showing contract value concentration in $0-50K range]</small>
+                </div>
+
+                <h3>Additional Analytics</h3>
+                <p>Our analysis reveals several procurement patterns:</p>
+                <ul style="margin-left: 2rem; margin-top: 1rem;">
+                    <li><strong>Geographic Concentration:</strong> Contracts spread across 15 states with concentrations in NE, NH, and NJ</li>
+                    <li><strong>Agency Distribution:</strong> Department of Defense accounts for majority of contracts</li>
+                    <li><strong>Competition Levels:</strong> Average 2.5 offers per contract, indicating moderate competition</li>
+                    <li><strong>Contract Types:</strong> Firm Fixed Price dominates procurement methods</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Grants Hub Tab -->
+        <div id="grants" class="tab-content">
+            <div class="card">
+                <h2>Grants Hub - Live API Integration</h2>
+                <p>Search and discover procurement opportunities from grants.gov with our simplified interface. This tool connects directly to the grants.gov API for real-time data.</p>
+                <div class="api-status">
+                    <div class="api-status-dot"></div>
+                    <span>Connected to grants.gov API v1</span>
+                </div>
+            </div>
+
+            <!-- Search Opportunities -->
+            <div class="search-section">
+                <h3>Search Opportunities</h3>
+                <form id="searchForm">
+                    <div class="form-group">
+                        <label for="keywords">Keywords</label>
+                        <input type="text" id="keywords" placeholder="Enter search keywords (e.g., transportation, logistics, health)">
+                    </div>
+
+                    <div class="form-group">
+                        <label>Opportunity Status</label>
+                        <div class="checkbox-group">
+                            <div class="checkbox-item">
+                                <input type="checkbox" id="posted" value="posted" checked>
+                                <label for="posted">Posted</label>
+                            </div>
+                            <div class="checkbox-item">
+                                <input type="checkbox" id="forecasted" value="forecasted">
+                                <label for="forecasted">Forecasted</label>
+                            </div>
+                            <div class="checkbox-item">
+                                <input type="checkbox" id="closed" value="closed">
+                                <label for="closed">Closed</label>
+                            </div>
+                            <div class="checkbox-item">
+                                <input type="checkbox" id="archived" value="archived">
+                                <label for="archived">Archived</label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="agencies">Agency Filter (optional)</label>
+                        <input type="text" id="agencies" placeholder="e.g., DOD, HHS, EPA">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="fundingCategories">Funding Categories (optional)</label>
+                        <select id="fundingCategories">
+                            <option value="">All Categories</option>
+                            <option value="RA">Recovery Act</option>
+                            <option value="AG">Agriculture</option>
+                            <option value="AO">Arts</option>
+                            <option value="BC">Business & Commerce</option>
+                            <option value="CP">Community Development</option>
+                            <option value="DPR">Disaster Prevention & Relief</option>
+                            <option value="ED">Education</option>
+                            <option value="EN">Energy</option>
+                            <option value="ENV">Environment</option>
+                            <option value="FN">Food & Nutrition</option>
+                            <option value="HL">Health</option>
+                            <option value="HO">Housing</option>
+                            <option value="HU">Humanities</option>
+                            <option value="IIJ">Infrastructure Investment & Jobs Act</option>
+                            <option value="IS">Income Security & Social Services</option>
+                            <option value="ISS">Information & Statistics</option>
+                            <option value="LJL">Law, Justice & Legal Services</option>
+                            <option value="NR">Natural Resources</option>
+                            <option value="O">Other</option>
+                            <option value="RA">Recovery Act</option>
+                            <option value="RD">Regional Development</option>
+                            <option value="ST">Science & Technology</option>
+                            <option value="T">Transportation</option>
+                            <option value="ELT">Employment, Labor & Training</option>
+                        </select>
+                    </div>
+
+                    <button type="submit">Search Opportunities</button>
+                </form>
+            </div>
+
+            <!-- Loading Indicator -->
+            <div id="loading" class="loading">
+                <div class="spinner"></div>
+                <p>Searching grants.gov database...</p>
+            </div>
+
+            <!-- Results Container -->
+            <div id="results" class="results-container"></div>
+
+            <!-- Selected Opportunities for Detail Fetch -->
+            <div id="selectedOpportunities" class="selected-opportunities" style="display: none;">
+                <h4>Selected Opportunities</h4>
+                <ul id="selectedList" class="selected-list"></ul>
+                <button onclick="fetchSelectedDetails()">Get Details for Selected Opportunities</button>
+            </div>
+
+            <!-- Opportunity Details Section -->
+            <div id="opportunityDetails" class="results-container"></div>
+        </div>
+
+        <!-- Dashboards Tab -->
+        <div id="dashboards" class="tab-content">
+            <div class="card">
+                <h2>Interactive Dashboards</h2>
+                <p>Visualize procurement data through interactive dashboards powered by Tableau and Power BI.</p>
+
+                <div class="dashboard-nav">
+                    <button class="dashboard-tab active" onclick="showDashboard('naics-dash')">NAICS Dashboard</button>
+                    <button class="dashboard-tab" onclick="showDashboard('grants-dash')">Grants Dashboard</button>
+                </div>
+
+                <div id="naics-dash" class="dashboard-content">
+                    <h3>NAICS Analysis Dashboard</h3>
+                    <div class="chart-container" style="min-height: 600px;">
+                        <div class="chart-icon">📊</div>
+                        <div>Tableau NAICS Dashboard</div>
+                        <small>[Embed Tableau Dashboard: Contract analysis by NAICS codes, temporal trends, agency distribution]</small>
+                        <br><br>
+                        <p style="color: var(--text-secondary);">To embed Tableau dashboard:</p>
+                        <code style="background: #f3f4f6; padding: 0.5rem; border-radius: 0.25rem;">
+                            &lt;iframe src="YOUR_TABLEAU_EMBED_URL" width="100%" height="600"&gt;&lt;/iframe&gt;
+                        </code>
+                    </div>
+                </div>
+
+                <div id="grants-dash" class="dashboard-content" style="display: none;">
+                    <h3>Grants Analysis Dashboard</h3>
+                    <div class="chart-container" style="min-height: 600px;">
+                        <div class="chart-icon">📈</div>
+                        <div>Power BI Grants Dashboard</div>
+                        <small>[Embed Power BI Dashboard: Real-time grants analysis, opportunity trends, success metrics]</small>
+                        <br><br>
+                        <p style="color: var(--text-secondary);">To embed Power BI dashboard:</p>
+                        <code style="background: #f3f4f6; padding: 0.5rem; border-radius: 0.25rem;">
+                            &lt;iframe src="YOUR_POWERBI_EMBED_URL" width="100%" height="600"&gt;&lt;/iframe&gt;
+                        </code>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        // Store selected opportunities
+        let selectedOpportunities = new Set();
+        let opportunitiesData = {};
+
+        // Tab Navigation
+        function showTab(tabId) {
+            document.querySelectorAll('.tab-content').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            
+            document.querySelectorAll('.nav-link').forEach(link => {
+                link.classList.remove('active');
+            });
+            
+            document.getElementById(tabId).classList.add('active');
+            document.querySelector(`a[href="#${tabId}"]`).classList.add('active');
+        }
+
+        // Dashboard Sub-navigation
+        function showDashboard(dashId) {
+            document.querySelectorAll('.dashboard-content').forEach(dash => {
+                dash.style.display = 'none';
+            });
+            
+            document.querySelectorAll('.dashboard-tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            
+            document.getElementById(dashId).style.display = 'block';
+            event.target.classList.add('active');
+        }
+
+        // API Configuration
+        // Railway Backend URL - Your API is live and ready!
+        // PLACEHOLDER: //
+		//const API_BASE_URL = 'https://imex-grants-backend-production.up.railway.app/api';
+        const API_BASE_URL = 'https://web-production-0421.up.railway.app/api';
+
+        // Search Form Handler
+        document.getElementById('searchForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const keywords = document.getElementById('keywords').value;
+            const statuses = Array.from(document.querySelectorAll('input[type="checkbox"]:checked'))
+                .map(cb => cb.value);
+            const agencies = document.getElementById('agencies').value;
+            const fundingCategories = document.getElementById('fundingCategories').value;
+            
+            if (!keywords && !agencies && !fundingCategories) {
+                showError('Please enter at least one search criteria');
+                return;
+            }
+            
+            showLoading(true);
+            
+            try {
+                // Build request body
+                const requestBody = {};
+                
+                if (keywords) requestBody.keyword = keywords;
+                if (statuses.length > 0) requestBody.oppStatuses = statuses.join('|');
+                if (agencies) requestBody.agencies = agencies;
+                if (fundingCategories) requestBody.fundingCategories = fundingCategories;
+                
+                // Make API call to search endpoint via backend
+                const response = await fetch(`${API_BASE_URL}/search`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json'
+                    },
+                    body: JSON.stringify(requestBody)
+                });
+                
+                if (!response.ok) {
+                    throw new Error(`API returned ${response.status}`);
+                }
+                
+                const data = await response.json();
+                displaySearchResults(data);
+                
+            } catch (error) {
+                console.error('API Error:', error);
+                showError('Error searching opportunities. The API may be temporarily unavailable. Please try again later.');
+            } finally {
+                showLoading(false);
+            }
+        });
+
+        // Display Search Results
+        function displaySearchResults(data) {
+            const resultsContainer = document.getElementById('results');
+            resultsContainer.innerHTML = '<h3>Search Results</h3>';
+            
+            // Check if we have opportunities in the response
+            const opportunities = data.opportunities || data.oppHits || [];
+            
+            if (!opportunities || opportunities.length === 0) {
+                resultsContainer.innerHTML += '<p>No opportunities found matching your criteria.</p>';
+                document.getElementById('selectedOpportunities').style.display = 'none';
+                return;
+            }
+            
+            // Clear previous selections
+            selectedOpportunities.clear();
+            opportunitiesData = {};
+            
+            resultsContainer.innerHTML += `<p><strong>${opportunities.length}</strong> opportunities found</p>`;
+            
+            opportunities.forEach(opp => {
+                // Store opportunity data
+                const oppId = opp.oppId || opp.opportunityId || opp.id;
+                opportunitiesData[oppId] = opp;
+                
+                const card = document.createElement('div');
+                card.className = 'opportunity-card';
+                card.dataset.oppId = oppId;
+                
+                // Extract relevant fields with fallbacks
+                const title = opp.oppTitle || opp.title || 'Untitled Opportunity';
+                const agency = opp.agencyCode || opp.agency || 'N/A';
+                const postedDate = opp.postedDate || opp.openDate || 'N/A';
+                const closeDate = opp.closeDate || 'N/A';
+                const status = opp.oppStatus || opp.status || 'N/A';
+                const description = opp.description || opp.synopsis || 'No description available';
+                
+                card.innerHTML = `
+                    <div class="opportunity-title">${title}</div>
+                    <div class="opportunity-detail">
+                        <div class="detail-item">
+                            <strong>Agency:</strong> ${agency}
+                        </div>
+                        <div class="detail-item">
+                            <strong>Posted:</strong> ${formatDate(postedDate)}
+                        </div>
+                        <div class="detail-item">
+                            <strong>Closes:</strong> ${formatDate(closeDate)}
+                        </div>
+                    </div>
+                    <div class="opportunity-detail">
+                        <div class="detail-item">
+                            <strong>Opportunity ID:</strong> ${oppId}
+                        </div>
+                        <div class="detail-item">
+                            <strong>Status:</strong> <span style="color: ${getStatusColor(status)}">${status.toUpperCase()}</span>
+                        </div>
+                    </div>
+                    <p style="margin-top: 1rem; color: var(--text-secondary);">${truncateText(description, 200)}</p>
+                    <div class="opportunity-checkbox">
+                        <input type="checkbox" id="select-${oppId}" onchange="toggleOpportunitySelection('${oppId}')">
+                        <label for="select-${oppId}">Select for detailed view</label>
+                    </div>
+                `;
+                
+                resultsContainer.appendChild(card);
+            });
+            
+            // Show selected opportunities section
+            document.getElementById('selectedOpportunities').style.display = 'block';
+            updateSelectedList();
+        }
+
+        // Toggle opportunity selection
+        function toggleOpportunitySelection(oppId) {
+            const card = document.querySelector(`[data-opp-id="${oppId}"]`);
+            const checkbox = document.getElementById(`select-${oppId}`);
+            
+            if (checkbox.checked) {
+                selectedOpportunities.add(oppId);
+                card.classList.add('selected');
+            } else {
+                selectedOpportunities.delete(oppId);
+                card.classList.remove('selected');
+            }
+            
+            updateSelectedList();
+        }
+
+        // Update selected opportunities list
+        function updateSelectedList() {
+            const listElement = document.getElementById('selectedList');
+            listElement.innerHTML = '';
+            
+            if (selectedOpportunities.size === 0) {
+                listElement.innerHTML = '<li>No opportunities selected</li>';
+                return;
+            }
+            
+            selectedOpportunities.forEach(oppId => {
+                const opp = opportunitiesData[oppId];
+                const li = document.createElement('li');
+                li.textContent = `${opp.oppTitle || opp.title || 'Untitled'} (${oppId})`;
+                listElement.appendChild(li);
+            });
+        }
+
+        // Fetch details for selected opportunities
+        async function fetchSelectedDetails() {
+            if (selectedOpportunities.size === 0) {
+                showError('Please select at least one opportunity');
+                return;
+            }
+            
+            const detailsContainer = document.getElementById('opportunityDetails');
+            detailsContainer.innerHTML = '<h3>Opportunity Details</h3>';
+            
+            showLoading(true);
+            
+            for (const oppId of selectedOpportunities) {
+                try {
+                    // Make API call to fetch opportunity endpoint via backend
+                    const response = await fetch(`${API_BASE_URL}/fetch-opportunity`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Accept': 'application/json'
+                        },
+                        body: JSON.stringify({ oppId: oppId })
+                    });
+                    
+                    if (!response.ok) {
+                        throw new Error(`Failed to fetch details for ${oppId}`);
+                    }
+                    
+                    const details = await response.json();
+                    displayOpportunityDetails(details, detailsContainer);
+                    
+                } catch (error) {
+                    console.error(`Error fetching details for ${oppId}:`, error);
+                    detailsContainer.innerHTML += `
+                        <div class="error-message">
+                            Failed to fetch details for opportunity ${oppId}
+                        </div>
+                    `;
+                }
+            }
+            
+            showLoading(false);
+        }
+
+        // Display opportunity details
+        function displayOpportunityDetails(details, container) {
+            const detailCard = document.createElement('div');
+            detailCard.className = 'opportunity-card';
+            
+            // Extract all available fields
+            const title = details.oppTitle || details.title || 'Untitled Opportunity';
+            const oppId = details.oppId || details.opportunityId || 'N/A';
+            const agency = details.agencyCode || details.agency || 'N/A';
+            const postedDate = details.postedDate || details.openDate || 'N/A';
+            const closeDate = details.closeDate || 'N/A';
+            const awardCeiling = details.awardCeiling || details.estimatedTotalProgramFunding || 'N/A';
+            const awardFloor = details.awardFloor || 'N/A';
+            const description = details.description || details.synopsis || 'No description available';
+            const eligibility = details.eligibility || details.eligibleApplicants || 'Not specified';
+            const contactInfo = details.contactInfo || details.grantor || {};
+            
+            detailCard.innerHTML = `
+                <div class="opportunity-title">${title}</div>
+                <div class="opportunity-detail">
+                    <div class="detail-item">
+                        <strong>Opportunity ID:</strong> ${oppId}
+                    </div>
+                    <div class="detail-item">
+                        <strong>Agency:</strong> ${agency}
+                    </div>
+                </div>
+                <div class="opportunity-detail">
+                    <div class="detail-item">
+                        <strong>Posted Date:</strong> ${formatDate(postedDate)}
+                    </div>
+                    <div class="detail-item">
+                        <strong>Close Date:</strong> ${formatDate(closeDate)}
+                    </div>
+                </div>
+                <div class="opportunity-detail">
+                    <div class="detail-item">
+                        <strong>Award Ceiling:</strong> ${formatCurrency(awardCeiling)}
+                    </div>
+                    <div class="detail-item">
+                        <strong>Award Floor:</strong> ${formatCurrency(awardFloor)}
+                    </div>
+                </div>
+                <h4 style="margin-top: 1.5rem; color: var(--primary-color);">Description</h4>
+                <p style="margin-top: 0.5rem;">${description}</p>
+                <h4 style="margin-top: 1.5rem; color: var(--primary-color);">Eligibility</h4>
+                <p style="margin-top: 0.5rem;">${eligibility}</p>
+                ${contactInfo.email || contactInfo.phone ? `
+                    <h4 style="margin-top: 1.5rem; color: var(--primary-color);">Contact Information</h4>
+                    <p style="margin-top: 0.5rem;">
+                        ${contactInfo.name ? `<strong>Name:</strong> ${contactInfo.name}<br>` : ''}
+                        ${contactInfo.email ? `<strong>Email:</strong> ${contactInfo.email}<br>` : ''}
+                        ${contactInfo.phone ? `<strong>Phone:</strong> ${contactInfo.phone}` : ''}
+                    </p>
+                ` : ''}
+            `;
+            
+            container.appendChild(detailCard);
+        }
+
+        // Utility Functions
+        function showLoading(show) {
+            document.getElementById('loading').style.display = show ? 'block' : 'none';
+        }
+
+        function showError(message) {
+            const resultsContainer = document.getElementById('results');
+            resultsContainer.innerHTML = `<div class="error-message">${message}</div>`;
+        }
+
+        function formatDate(dateString) {
+            if (!dateString || dateString === 'N/A') return 'N/A';
+            try {
+                const date = new Date(dateString);
+                return date.toLocaleDateString('en-US', { 
+                    year: 'numeric', 
+                    month: 'short', 
+                    day: 'numeric' 
+                });
+            } catch {
+                return dateString;
+            }
+        }
+
+        function formatCurrency(amount) {
+            if (!amount || amount === 'N/A') return 'N/A';
+            if (typeof amount === 'number') {
+                return new Intl.NumberFormat('en-US', {
+                    style: 'currency',
+                    currency: 'USD',
+                    minimumFractionDigits: 0,
+                    maximumFractionDigits: 0
+                }).format(amount);
+            }
+            return amount;
+        }
+
+        function truncateText(text, maxLength) {
+            if (!text) return '';
+            if (text.length <= maxLength) return text;
+            return text.substring(0, maxLength) + '...';
+        }
+
+        function getStatusColor(status) {
+            const statusLower = status.toLowerCase();
+            if (statusLower === 'posted' || statusLower === 'open') return 'var(--success-color)';
+            if (statusLower === 'closed') return 'var(--error-color)';
+            if (statusLower === 'forecasted') return 'var(--accent-color)';
+            return 'var(--text-secondary)';
+        }
+
+        // Initialize page
+        document.addEventListener('DOMContentLoaded', () => {
+            showTab('home');
+        });
+    </script>
+</body>
+</html>
