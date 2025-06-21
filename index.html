@@ -668,8 +668,11 @@
                 <h3>Search Opportunities</h3>
                 <form id="searchForm">
                     <div class="form-group">
-                        <label for="keywords">Keywords</label>
-                        <input type="text" id="keywords" placeholder="Enter search keywords (e.g., transportation, logistics, health)">
+                        <label for="keywords">Keywords (Optional)</label>
+                        <input type="text" id="keywords" placeholder="Try: 2025, EPA-2025, or leave blank for all">
+                        <small style="color: var(--text-secondary); display: block; margin-top: 0.5rem;">
+                            Tip: Leave blank and use filters below for best results
+                        </small>
                     </div>
 
                     <div class="form-group">
@@ -831,9 +834,7 @@
 
         // API Configuration
         // Railway Backend URL - Your API is live and ready!
-        // PLACEHOLDER: //
-		//const API_BASE_URL = 'https://imex-grants-backend-production.up.railway.app/api';
-        const API_BASE_URL = 'https://web-production-0421.up.railway.app/api';
+        const API_BASE_URL = 'https://imex-grants-backend-production.up.railway.app/api';
 
         // Search Form Handler
         document.getElementById('searchForm').addEventListener('submit', async (e) => {
@@ -846,8 +847,11 @@
             const fundingCategories = document.getElementById('fundingCategories').value;
             
             if (!keywords && !agencies && !fundingCategories) {
-                showError('Please enter at least one search criteria');
-                return;
+                // If no criteria, at least search with status
+                if (statuses.length === 0) {
+                    showError('Please select at least one search criteria or status');
+                    return;
+                }
             }
             
             showLoading(true);
