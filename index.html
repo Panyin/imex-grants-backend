@@ -879,10 +879,13 @@
                 });
                 
                 if (!response.ok) {
+                    const errorData = await response.text();
+                    console.error('API Error Response:', errorData);
                     throw new Error(`API returned ${response.status}`);
                 }
                 
                 const data = await response.json();
+                console.log('Full API Response:', data);
                 displaySearchResults(data);
                 
             } catch (error) {
@@ -898,11 +901,18 @@
             const resultsContainer = document.getElementById('results');
             resultsContainer.innerHTML = '<h3>Search Results</h3>';
             
-            // Check if we have opportunities in the response
-            const opportunities = data.opportunities || data.oppHits || [];
+            // Check the actual response structure from grants.gov
+            console.log('API Response:', data);
+            
+            // grants.gov returns data in data.oppHits
+            const opportunities = data.data?.oppHits || data.oppHits || data.opportunities || [];
+            const hitCount = data.data?.hitCount || data.hitCount || 0;
             
             if (!opportunities || opportunities.length === 0) {
-                resultsContainer.innerHTML += '<p>No opportunities found matching your criteria.</p>';
+                resultsContainer.innerHTML += `<p>No opportunities found matching your criteria.</p>`;
+                if (hitCount > 0) {
+                    resultsContainer.innerHTML += `<p><small>Note: ${hitCount} results exist but no data returned. Try different search criteria.</small></p>`;
+                }
                 document.getElementById('selectedOpportunities').style.display = 'none';
                 return;
             }
@@ -1163,9 +1173,9 @@
             document.getElementById('agencies').value = '';
             // Reset funding categories
             document.getElementById('fundingCategories').value = '';
-            // Check only "Posted" status
+            // Check both "Posted" and "Forecasted" status for maximum results
             document.getElementById('posted').checked = true;
-            document.getElementById('forecasted').checked = false;
+            document.getElementById('forecasted').checked = true;
             document.getElementById('closed').checked = false;
             document.getElementById('archived').checked = false;
             // Submit the form
