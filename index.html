@@ -733,6 +733,18 @@
                         </select>
                     </div>
 
+                    <div class="form-group">
+                        <label for="dateRange">Posted Date Range (Optional)</label>
+                        <select id="dateRange">
+                            <option value="">All Dates</option>
+                            <option value="7">Last 7 Days</option>
+                            <option value="30">Last 30 Days</option>
+                            <option value="60">Last 60 Days</option>
+                            <option value="90">Last 90 Days</option>
+                            <option value="365">Last Year</option>
+                        </select>
+                    </div>
+
                     <button type="submit">Search Opportunities</button>
                     <button type="button" onclick="searchAll()" style="margin-left: 1rem; background: var(--accent-color);">
                         Show All Posted Opportunities
@@ -867,6 +879,25 @@
                 if (statuses.length > 0) requestBody.oppStatuses = statuses.join('|');
                 if (agencies) requestBody.agencies = agencies;
                 if (fundingCategories) requestBody.fundingCategories = fundingCategories;
+                
+                // Add date range filter
+                const dateRange = document.getElementById('dateRange').value;
+                if (dateRange) {
+                    const today = new Date();
+                    const pastDate = new Date();
+                    pastDate.setDate(today.getDate() - parseInt(dateRange));
+                    
+                    // Format dates as MM/DD/YYYY
+                    const formatDate = (date) => {
+                        const mm = String(date.getMonth() + 1).padStart(2, '0');
+                        const dd = String(date.getDate()).padStart(2, '0');
+                        const yyyy = date.getFullYear();
+                        return `${mm}/${dd}/${yyyy}`;
+                    };
+                    
+                    requestBody.postedFrom = formatDate(pastDate);
+                    requestBody.postedTo = formatDate(today);
+                }
                 
                 // Make API call to search endpoint via backend
                 const response = await fetch(`${API_BASE_URL}/search`, {
@@ -1127,7 +1158,19 @@
         function formatDate(dateString) {
             if (!dateString || dateString === 'N/A') return 'N/A';
             try {
-                const date = new Date(dateString);
+                // Handle both date formats
+                let date;
+                if (dateString.includes(',')) {
+                    // Format: "Nov 18, 2009"
+                    date = new Date(dateString);
+                } else if (dateString.includes('/')) {
+                    // Format: "MM/DD/YYYY"
+                    const parts = dateString.split('/');
+                    date = new Date(parts[2], parts[0] - 1, parts[1]);
+                } else {
+                    date = new Date(dateString);
+                }
+                
                 return date.toLocaleDateString('en-US', { 
                     year: 'numeric', 
                     month: 'short', 
