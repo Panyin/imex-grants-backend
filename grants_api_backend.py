@@ -1,4 +1,4 @@
-# grants_api_backend.py - UPDATED VERSION
+# grants_api_backend.py - FIXED VERSION
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 import requests
@@ -31,7 +31,7 @@ def home():
             "/api/fetch-opportunity": "POST - Fetch opportunity details"
         },
         "frontend": "Update your IMEX Hub with this API URL",
-        "version": "1.1"
+        "version": "1.2"
     })
 
 @app.route('/api/search', methods=['POST'])
@@ -43,34 +43,49 @@ def search_opportunities():
         
         # Build grants.gov compatible request
         api_request = {
-            "rows": 25,  # Default number of results
-            "oppNum": "",  # Opportunity number (usually empty for searches)
-            "aln": "",  # ALN number (usually empty)
+            "rows": 100,  # Increased to get more results
         }
         
-        # Map our simplified format to grants.gov format
-        if 'keyword' in client_data:
+        # Handle keywords
+        if 'keyword' in client_data and client_data['keyword']:
             api_request['keyword'] = client_data['keyword']
-            # Also try keyword encoding - some keywords might need different format
-            api_request['keywordEncoded'] = True
         
+        # Handle status - this is working correctly
         if 'oppStatuses' in client_data:
-            # Ensure proper pipe separation for multiple statuses
             api_request['oppStatuses'] = client_data['oppStatuses']
         else:
-            # Default to all common statuses
             api_request['oppStatuses'] = "posted|forecasted"
         
+        # FIX: Agency filter - grants.gov expects agency codes not names
         if 'agencies' in client_data and client_data['agencies']:
-            api_request['agencies'] = client_data['agencies']
+            # Clean up the agency input and handle multiple agencies
+            agencies = client_data['agencies'].strip()
+            # If user enters multiple agencies separated by comma
+            if ',' in agencies:
+                # Convert "DOD, HHS" to "DOD|HHS" format
+                agency_list = [a.strip() for a in agencies.split(',')]
+                api_request['agencies'] = '|'.join(agency_list)
+            else:
+                api_request['agencies'] = agencies
         
+        # Funding categories - this is working
         if 'fundingCategories' in client_data and client_data['fundingCategories']:
             api_request['fundingCategories'] = client_data['fundingCategories']
         
-        # Add any other fields from client
-        for key in ['startRecordNum', 'eligibilities', 'sortBy', 'hitCount']:
-            if key in client_data:
-                api_request[key] = client_data[key]
+        # FIX: Date range handling
+        if 'postedFrom' in client_data and client_data['postedFrom']:
+            api_request['postedFrom'] = client_data['postedFrom']
+            print(f"Date From: {client_data['postedFrom']}")
+        
+        if 'postedTo' in client_data and client_data['postedTo']:
+            api_request['postedTo'] = client_data['postedTo']
+            print(f"Date To: {client_data['postedTo']}")
+        
+        # Add startRecordNum to paginate if needed
+        if 'startRecordNum' in client_data:
+            api_request['startRecordNum'] = client_data['startRecordNum']
+        else:
+            api_request['startRecordNum'] = 0
         
         print(f"API Request to grants.gov: {json.dumps(api_request, indent=2)}")
         
@@ -89,7 +104,10 @@ def search_opportunities():
         
         if response.status_code == 200:
             data = response.json()
-            print(f"Response preview: {json.dumps(data, indent=2)[:500]}...")
+            # Log some debug info
+            if 'data' in data:
+                print(f"Results returned: {data['data'].get('hitCount', 0)}")
+                print(f"Search params used: {data['data'].get('searchParams', {})}")
             return jsonify(data)
         else:
             print(f"Error response: {response.text}")
@@ -154,42 +172,77 @@ def health_check():
     return jsonify({
         "status": "healthy", 
         "service": "grants-api-proxy",
-        "version": "1.1"
+        "version": "1.2"
     })
 
-# Debug endpoint to test what grants.gov returns
-@app.route('/api/test-search', methods=['GET'])
-def test_search():
-    """Test endpoint with the exact example from grants.gov docs"""
-    test_request = {
+# Debug endpoint to test filters
+@app.route('/api/test-filters', methods=['GET'])
+def test_filters():
+    """Test different filter combinations"""
+    tests = []
+    
+    # Test 1: Date range
+    test1_request = {
         "rows": 10,
-        "keyword": "20231011",
-        "oppNum": "TEST-PTS-20231011-OPP1",
-        "eligibilities": "",
-        "agencies": "",
-        "oppStatuses": "forecasted|posted",
-        "aln": "",
-        "fundingCategories": ""
+        "oppStatuses": "posted",
+        "postedFrom": "01/01/2025",
+        "postedTo": "06/30/2025"
     }
     
-    try:
-        response = requests.post(
-            f"{GRANTS_API_BASE}/search2",
-            headers={
-                "Content-Type": "application/json",
-                "Accept": "application/json"
-            },
-            json=test_request,
-            timeout=30
-        )
-        
-        return jsonify({
-            "status_code": response.status_code,
-            "request_sent": test_request,
-            "response": response.json() if response.status_code == 200 else response.text
-        })
-    except Exception as e:
-        return jsonify({"error": str(e)})
+    # Test 2: Agency
+    test2_request = {
+        "rows": 10,
+        "oppStatuses": "posted",
+        "agencies": "DOD"
+    }
+    
+    # Test 3: Funding Category
+    test3_request = {
+        "rows": 10,
+        "oppStatuses": "posted",
+        "fundingCategories": "HL"  # Health
+    }
+    
+    for idx, test_req in enumerate([test1_request, test2_request, test3_request], 1):
+        try:
+            response = requests.post(
+                f"{GRANTS_API_BASE}/search2",
+                headers={
+                    "Content-Type": "application/json",
+                    "Accept": "application/json"
+                },
+                json=test_req,
+                timeout=30
+            )
+            
+            if response.status_code == 200:
+                data = response.json()
+                hit_count = data.get('data', {}).get('hitCount', 0)
+                tests.append({
+                    f"test{idx}": {
+                        "request": test_req,
+                        "hitCount": hit_count,
+                        "success": True
+                    }
+                })
+            else:
+                tests.append({
+                    f"test{idx}": {
+                        "request": test_req,
+                        "error": response.text,
+                        "success": False
+                    }
+                })
+        except Exception as e:
+            tests.append({
+                f"test{idx}": {
+                    "request": test_req,
+                    "error": str(e),
+                    "success": False
+                }
+            })
+    
+    return jsonify({"filter_tests": tests})
 
 if __name__ == '__main__':
     port = int(os.environ.get('PORT', 5000))
