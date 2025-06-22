@@ -525,6 +525,7 @@
             100% { opacity: 1; }
         }
     </style>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
     <header>
@@ -610,11 +611,68 @@
                 </ul>
 
                 <h3>IMEX Contract Analysis</h3>
-                <div class="chart-container">
-                    <div class="chart-icon">📊</div>
-                    <div>NAICS Code Distribution Chart</div>
-                    <small>[Insert: Sorted NAICS Code Distribution visualization showing 481211 dominance]</small>
+                <div style="max-width: 600px; margin: 2rem auto;">
+                    <canvas id="naicsChart"></canvas>
                 </div>
+                <script>
+                    // NAICS Distribution Chart
+                    const ctx1 = document.getElementById('naicsChart').getContext('2d');
+                    new Chart(ctx1, {
+                        type: 'bar',
+                        data: {
+                            labels: ['481211', '481219', '481212', '484110', '484121', '484220', '484230'],
+                            datasets: [{
+                                label: 'Number of Contracts',
+                                data: [156, 8, 4, 3, 3, 2, 1],
+                                backgroundColor: [
+                                    'rgba(59, 130, 246, 0.8)',
+                                    'rgba(34, 197, 94, 0.8)',
+                                    'rgba(168, 85, 247, 0.8)',
+                                    'rgba(239, 68, 68, 0.8)',
+                                    'rgba(245, 158, 11, 0.8)',
+                                    'rgba(236, 72, 153, 0.8)',
+                                    'rgba(107, 114, 128, 0.8)'
+                                ],
+                                borderColor: [
+                                    'rgba(59, 130, 246, 1)',
+                                    'rgba(34, 197, 94, 1)',
+                                    'rgba(168, 85, 247, 1)',
+                                    'rgba(239, 68, 68, 1)',
+                                    'rgba(245, 158, 11, 1)',
+                                    'rgba(236, 72, 153, 1)',
+                                    'rgba(107, 114, 128, 1)'
+                                ],
+                                borderWidth: 1
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            plugins: {
+                                title: {
+                                    display: true,
+                                    text: 'NAICS Code Distribution',
+                                    font: { size: 16 }
+                                },
+                                legend: { display: false }
+                            },
+                            scales: {
+                                y: {
+                                    beginAtZero: true,
+                                    title: {
+                                        display: true,
+                                        text: 'Frequency'
+                                    }
+                                },
+                                x: {
+                                    title: {
+                                        display: true,
+                                        text: 'NAICS Code'
+                                    }
+                                }
+                            }
+                        }
+                    });
+                </script>
 
                 <h3>Key Findings</h3>
                 <div class="stats-grid">
@@ -635,13 +693,52 @@
                     </div>
                 </div>
 
-                <div class="chart-container">
-                    <div class="chart-icon">📈</div>
-                    <div>Total Obligated Amount Distribution</div>
-                    <small>[Insert: Histogram showing contract value concentration in $0-50K range]</small>
-                </div>
-
                 <h3>Additional Analytics</h3>
+                <div style="max-width: 600px; margin: 2rem auto;">
+                    <canvas id="valueChart"></canvas>
+                </div>
+                <script>
+                    // Contract Value Distribution Chart
+                    const ctx2 = document.getElementById('valueChart').getContext('2d');
+                    new Chart(ctx2, {
+                        type: 'bar',
+                        data: {
+                            labels: ['$0-10K', '$10K-25K', '$25K-50K', '$50K-100K', 'Over $100K'],
+                            datasets: [{
+                                label: 'Number of Contracts',
+                                data: [65, 82, 22, 5, 3],
+                                backgroundColor: 'rgba(59, 130, 246, 0.8)',
+                                borderColor: 'rgba(59, 130, 246, 1)',
+                                borderWidth: 1
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            plugins: {
+                                title: {
+                                    display: true,
+                                    text: 'Total Obligated Amount Distribution',
+                                    font: { size: 16 }
+                                }
+                            },
+                            scales: {
+                                y: {
+                                    beginAtZero: true,
+                                    title: {
+                                        display: true,
+                                        text: 'Count'
+                                    }
+                                },
+                                x: {
+                                    title: {
+                                        display: true,
+                                        text: 'Contract Size'
+                                    }
+                                }
+                            }
+                        }
+                    });
+                </script>
                 <p>Our analysis reveals several procurement patterns:</p>
                 <ul style="margin-left: 2rem; margin-top: 1rem;">
                     <li><strong>Geographic Concentration:</strong> Contracts spread across 15 states with concentrations in NE, NH, and NJ</li>
@@ -1216,6 +1313,8 @@
             document.getElementById('agencies').value = '';
             // Reset funding categories
             document.getElementById('fundingCategories').value = '';
+            // Clear the date range filter
+            document.getElementById('dateRange').value = '';
             // Check both "Posted" and "Forecasted" status for maximum results
             document.getElementById('posted').checked = true;
             document.getElementById('forecasted').checked = true;
