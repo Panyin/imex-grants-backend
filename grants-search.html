@@ -1,0 +1,627 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Federal Grants Search - Quick Access</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary-color: #1e3a8a;
+            --secondary-color: #3b82f6;
+            --accent-color: #f59e0b;
+            --success-color: #10b981;
+            --text-primary: #1f2937;
+            --text-secondary: #6b7280;
+            --bg-primary: #f9fafb;
+            --bg-secondary: #ffffff;
+            --border-color: #e5e7eb;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            line-height: 1.6;
+            color: var(--text-primary);
+            background-color: var(--bg-primary);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Header */
+        header {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            padding: 2rem 0;
+            text-align: center;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .header-content h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+
+        .header-content p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        /* Main Container */
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+            flex: 1;
+        }
+
+        /* Search Section */
+        .search-card {
+            background: var(--bg-secondary);
+            border-radius: 1rem;
+            padding: 2rem;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            margin-bottom: 2rem;
+        }
+
+        .search-controls {
+            display: flex;
+            gap: 1rem;
+            align-items: flex-end;
+            flex-wrap: wrap;
+        }
+
+        .form-group {
+            flex: 1;
+            min-width: 250px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        select {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            border: 2px solid var(--border-color);
+            border-radius: 0.5rem;
+            font-size: 1rem;
+            background: white;
+            transition: all 0.3s ease;
+        }
+
+        select:focus {
+            outline: none;
+            border-color: var(--secondary-color);
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+
+        button {
+            background: linear-gradient(135deg, var(--accent-color), #dc2626);
+            color: white;
+            padding: 0.75rem 2rem;
+            border: none;
+            border-radius: 0.5rem;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            white-space: nowrap;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(245, 158, 11, 0.3);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        /* Stats */
+        .stats {
+            display: flex;
+            gap: 2rem;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, var(--secondary-color), var(--primary-color));
+            color: white;
+            padding: 1.5rem;
+            border-radius: 0.75rem;
+            flex: 1;
+            min-width: 200px;
+            text-align: center;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        .stat-number {
+            font-size: 2rem;
+            font-weight: bold;
+            margin-bottom: 0.25rem;
+        }
+
+        .stat-label {
+            font-size: 0.9rem;
+            opacity: 0.9;
+        }
+
+        /* Loading */
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 3rem;
+        }
+
+        .spinner {
+            display: inline-block;
+            width: 50px;
+            height: 50px;
+            border: 4px solid var(--border-color);
+            border-top-color: var(--secondary-color);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Results */
+        .results-section {
+            margin-top: 2rem;
+        }
+
+        .results-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .results-header h2 {
+            color: var(--primary-color);
+            font-size: 1.8rem;
+        }
+
+        .results-count {
+            background: var(--success-color);
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 2rem;
+            font-weight: 600;
+        }
+
+        .opportunity-card {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 0.75rem;
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .opportunity-card:hover {
+            border-color: var(--secondary-color);
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.1);
+            transform: translateY(-2px);
+        }
+
+        .opportunity-title {
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: var(--primary-color);
+            margin-bottom: 1rem;
+            line-height: 1.4;
+        }
+
+        .opportunity-meta {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .meta-item {
+            display: flex;
+            flex-direction: column;
+            gap: 0.25rem;
+        }
+
+        .meta-label {
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+            font-weight: 600;
+        }
+
+        .meta-value {
+            color: var(--text-primary);
+            font-weight: 500;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            border-radius: 1rem;
+            font-size: 0.875rem;
+            font-weight: 600;
+            background: var(--success-color);
+            color: white;
+        }
+
+        .opportunity-description {
+            color: var(--text-secondary);
+            line-height: 1.6;
+            margin-top: 1rem;
+        }
+
+        /* Error/Info Messages */
+        .message {
+            padding: 1rem;
+            border-radius: 0.5rem;
+            margin: 1rem 0;
+            text-align: center;
+        }
+
+        .error-message {
+            background: #fef2f2;
+            border: 1px solid #fecaca;
+            color: #dc2626;
+        }
+
+        .info-message {
+            background: #eff6ff;
+            border: 1px solid #bfdbfe;
+            color: #1e40af;
+        }
+
+        /* Footer */
+        footer {
+            background: var(--text-primary);
+            color: white;
+            text-align: center;
+            padding: 1.5rem;
+            margin-top: 3rem;
+        }
+
+        footer a {
+            color: var(--secondary-color);
+            text-decoration: none;
+        }
+
+        footer a:hover {
+            text-decoration: underline;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .header-content h1 {
+                font-size: 2rem;
+            }
+
+            .search-controls {
+                flex-direction: column;
+            }
+
+            .form-group {
+                width: 100%;
+            }
+
+            button {
+                width: 100%;
+            }
+
+            .opportunity-meta {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* API Status */
+        .api-status {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: var(--bg-secondary);
+            padding: 0.75rem 1rem;
+            border-radius: 2rem;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.875rem;
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            background: var(--success-color);
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="header-content">
+            <h1>Federal Grants Search</h1>
+            <p>Quick access to procurement opportunities from grants.gov</p>
+        </div>
+    </header>
+
+    <div class="container">
+        <!-- Search Section -->
+        <div class="search-card">
+            <div class="search-controls">
+                <div class="form-group">
+                    <label for="fundingCategories">Select Funding Category</label>
+                    <select id="fundingCategories">
+                        <option value="">All Categories</option>
+                        <option value="RA">Recovery Act</option>
+                        <option value="AG">Agriculture</option>
+                        <option value="AO">Arts</option>
+                        <option value="BC">Business & Commerce</option>
+                        <option value="CP">Community Development</option>
+                        <option value="DPR">Disaster Prevention & Relief</option>
+                        <option value="ED">Education</option>
+                        <option value="EN">Energy</option>
+                        <option value="ENV">Environment</option>
+                        <option value="FN">Food & Nutrition</option>
+                        <option value="HL">Health</option>
+                        <option value="HO">Housing</option>
+                        <option value="HU">Humanities</option>
+                        <option value="IIJ">Infrastructure Investment & Jobs Act</option>
+                        <option value="IS">Income Security & Social Services</option>
+                        <option value="ISS">Information & Statistics</option>
+                        <option value="LJL">Law, Justice & Legal Services</option>
+                        <option value="NR">Natural Resources</option>
+                        <option value="O">Other</option>
+                        <option value="RD">Regional Development</option>
+                        <option value="ST">Science & Technology</option>
+                        <option value="T">Transportation</option>
+                        <option value="ELT">Employment, Labor & Training</option>
+                    </select>
+                </div>
+                <button onclick="searchOpportunities()">Display All Opportunities</button>
+            </div>
+        </div>
+
+        <!-- Stats Section -->
+        <div class="stats" id="stats" style="display: none;">
+            <div class="stat-card">
+                <div class="stat-number" id="totalResults">0</div>
+                <div class="stat-label">Total Results</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="categoryCount">All</div>
+                <div class="stat-label">Category Filter</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number">Live</div>
+                <div class="stat-label">Data Status</div>
+            </div>
+        </div>
+
+        <!-- Loading -->
+        <div id="loading" class="loading">
+            <div class="spinner"></div>
+            <p>Searching grants.gov database...</p>
+        </div>
+
+        <!-- Results -->
+        <div id="results" class="results-section"></div>
+    </div>
+
+    <footer>
+        <p>Powered by <a href="https://grants.gov" target="_blank">grants.gov</a> API | 
+        <a href="https://web-production-0421.up.railway.app" target="_blank">API Status</a></p>
+    </footer>
+
+    <!-- API Status Indicator -->
+    <div class="api-status">
+        <div class="status-dot"></div>
+        <span>Connected to grants.gov</span>
+    </div>
+
+    <script>
+        // Configuration
+        const API_BASE_URL = 'https://web-production-0421.up.railway.app/api';
+
+        // Search function
+        async function searchOpportunities() {
+            const fundingCategory = document.getElementById('fundingCategories').value;
+            
+            showLoading(true);
+            hideStats();
+            
+            try {
+                // Build request
+                const requestBody = {
+                    oppStatuses: 'posted|forecasted',
+                    rows: 100
+                };
+                
+                if (fundingCategory) {
+                    requestBody.fundingCategories = fundingCategory;
+                }
+                
+                // Make API call
+                const response = await fetch(`${API_BASE_URL}/search`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json'
+                    },
+                    body: JSON.stringify(requestBody)
+                });
+                
+                if (!response.ok) {
+                    throw new Error(`API returned ${response.status}`);
+                }
+                
+                const data = await response.json();
+                displayResults(data);
+                
+            } catch (error) {
+                console.error('Search error:', error);
+                showError('Unable to search opportunities. Please try again later.');
+            } finally {
+                showLoading(false);
+            }
+        }
+
+        // Display results
+        function displayResults(data) {
+            const resultsContainer = document.getElementById('results');
+            const opportunities = data.data?.oppHits || [];
+            const hitCount = data.data?.hitCount || 0;
+            
+            // Update stats
+            updateStats(hitCount, document.getElementById('fundingCategories').value);
+            
+            if (!opportunities || opportunities.length === 0) {
+                resultsContainer.innerHTML = `
+                    <div class="message info-message">
+                        No opportunities found. Try selecting a different category or check back later.
+                    </div>
+                `;
+                return;
+            }
+            
+            // Build results HTML
+            let html = `
+                <div class="results-header">
+                    <h2>Available Opportunities</h2>
+                    <span class="results-count">${opportunities.length} of ${hitCount} results</span>
+                </div>
+            `;
+            
+            opportunities.forEach(opp => {
+                const title = opp.oppTitle || opp.title || 'Untitled Opportunity';
+                const agency = opp.agencyCode || opp.agency || 'N/A';
+                const postedDate = formatDate(opp.postedDate || opp.openDate);
+                const closeDate = formatDate(opp.closeDate);
+                const oppId = opp.oppId || opp.id || 'N/A';
+                const status = opp.oppStatus || opp.status || 'N/A';
+                const description = opp.description || opp.synopsis || 'No description available';
+                
+                html += `
+                    <div class="opportunity-card">
+                        <h3 class="opportunity-title">${escapeHtml(title)}</h3>
+                        <div class="opportunity-meta">
+                            <div class="meta-item">
+                                <span class="meta-label">Agency</span>
+                                <span class="meta-value">${escapeHtml(agency)}</span>
+                            </div>
+                            <div class="meta-item">
+                                <span class="meta-label">Opportunity ID</span>
+                                <span class="meta-value">${escapeHtml(oppId)}</span>
+                            </div>
+                            <div class="meta-item">
+                                <span class="meta-label">Posted Date</span>
+                                <span class="meta-value">${postedDate}</span>
+                            </div>
+                            <div class="meta-item">
+                                <span class="meta-label">Close Date</span>
+                                <span class="meta-value">${closeDate}</span>
+                            </div>
+                            <div class="meta-item">
+                                <span class="meta-label">Status</span>
+                                <span class="status-badge">${escapeHtml(status.toUpperCase())}</span>
+                            </div>
+                        </div>
+                        <p class="opportunity-description">${escapeHtml(truncateText(description, 300))}</p>
+                    </div>
+                `;
+            });
+            
+            resultsContainer.innerHTML = html;
+        }
+
+        // Update statistics
+        function updateStats(total, category) {
+            document.getElementById('stats').style.display = 'flex';
+            document.getElementById('totalResults').textContent = total;
+            
+            const categorySelect = document.getElementById('fundingCategories');
+            const categoryText = category ? 
+                categorySelect.options[categorySelect.selectedIndex].text : 'All';
+            document.getElementById('categoryCount').textContent = categoryText;
+        }
+
+        // Hide statistics
+        function hideStats() {
+            document.getElementById('stats').style.display = 'none';
+        }
+
+        // Show/hide loading
+        function showLoading(show) {
+            document.getElementById('loading').style.display = show ? 'block' : 'none';
+        }
+
+        // Show error message
+        function showError(message) {
+            const resultsContainer = document.getElementById('results');
+            resultsContainer.innerHTML = `
+                <div class="message error-message">
+                    ${message}
+                </div>
+            `;
+        }
+
+        // Format date
+        function formatDate(dateString) {
+            if (!dateString || dateString === 'N/A') return 'N/A';
+            try {
+                const date = new Date(dateString);
+                return date.toLocaleDateString('en-US', { 
+                    year: 'numeric', 
+                    month: 'short', 
+                    day: 'numeric' 
+                });
+            } catch {
+                return dateString;
+            }
+        }
+
+        // Truncate text
+        function truncateText(text, maxLength) {
+            if (!text || text.length <= maxLength) return text;
+            return text.substring(0, maxLength) + '...';
+        }
+
+        // Escape HTML
+        function escapeHtml(text) {
+            if (!text) return '';
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        // Initialize - search on load
+        document.addEventListener('DOMContentLoaded', () => {
+            searchOpportunities();
+        });
+
+        // Search when category changes
+        document.getElementById('fundingCategories').addEventListener('change', searchOpportunities);
+    </script>
+</body>
+</html>
